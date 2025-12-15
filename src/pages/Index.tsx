@@ -8,7 +8,7 @@ import { Sparkles, Wand2, Mic2, FileText, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [language, setLanguage] = useState("vi");
   const [filename, setFilename] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -16,7 +16,7 @@ const Index = () => {
   const { toast } = useToast();
 
   const handleConvert = async () => {
-    if (!selectedFile) {
+    if (selectedFiles.length === 0) {
       toast({
         title: "Vui lòng chọn file",
         description: "Bạn cần tải lên file audio trước khi chuyển đổi.",
@@ -31,7 +31,9 @@ const Index = () => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
     
     // Demo result
-    const demoText = `Đây là kết quả chuyển đổi mẫu từ file audio "${selectedFile.name}".
+    const fileNames = selectedFiles.map(f => f.name).join(", ");
+    const demoText = `Đây là kết quả chuyển đổi mẫu từ ${selectedFiles.length} file audio:
+${fileNames}
 
 Trong ứng dụng thực tế, bạn cần kết nối với dịch vụ AI như OpenAI Whisper hoặc Google Speech-to-Text để thực hiện chuyển đổi thực sự.
 
@@ -39,6 +41,7 @@ Ngôn ngữ được chọn: ${language === "auto" ? "Tự động nhận diện
 
 Tính năng của công cụ:
 • Hỗ trợ nhiều định dạng audio phổ biến
+• Upload nhiều file cùng lúc
 • Nhận diện tự động ngôn ngữ
 • Tải về file text với tên tùy chọn
 • Giao diện thân thiện, dễ sử dụng`;
@@ -106,14 +109,14 @@ Tính năng của công cụ:
           {/* Upload */}
           <div className="animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <AudioUploader
-              onFileSelect={setSelectedFile}
-              selectedFile={selectedFile}
+              onFilesSelect={setSelectedFiles}
+              selectedFiles={selectedFiles}
               isProcessing={isProcessing}
             />
           </div>
 
           {/* Options */}
-          {selectedFile && (
+          {selectedFiles.length > 0 && (
             <div className="glass-card rounded-2xl p-6 space-y-6 animate-fade-in">
               <div className="grid md:grid-cols-2 gap-6">
                 <LanguageSelect value={language} onChange={setLanguage} />
